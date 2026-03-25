@@ -79,7 +79,7 @@ const AuthPage = () => {
       <Card className="w-full max-w-md shadow-medical">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-medical">
-            <span className="text-xl font-bold text-primary-foreground">ن</span>
+            <img src="/og.png" alt="logo" className="h-full w-full" />
           </div>
           <CardTitle className="text-2xl">
             {mode === "login"
