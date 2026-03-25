@@ -366,7 +366,7 @@ const PatientDashboard = () => {
         <div className="flex h-16 items-center justify-between border-b border-border px-4">
           <Link to="/" className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-medical">
-              <img src="/public/og.png" alt="logo" className="h-full w-full" />
+              <img src="/og.png" alt="logo" className="h-full w-full" />
             </div>
             <span className="font-bold text-foreground">
               {isRTL ? "نور الحياة" : "Noor Al-Hayat"}

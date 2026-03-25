@@ -26,7 +26,7 @@ const Navbar = () => {
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-medical">
-            <img src="/public/og.png" alt="logo" className="h-full w-full" />
+            <img src="/og.png" alt="logo" className="h-full w-full" />
           </div>
           <span className="text-lg font-bold text-foreground">
             {isRTL ? "نور الحياة" : "Noor Al-Hayat"}
