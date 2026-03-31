@@ -215,37 +215,72 @@ const OffersSection = () => {
           ) : offers.length === 0 ? (
             <p className="p-8 text-center text-muted-foreground">{isRTL ? "لا توجد عروض" : "No offers yet"}</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{isRTL ? "العنوان" : "Title"}</TableHead>
-                  <TableHead>{isRTL ? "الخصم" : "Discount"}</TableHead>
-                  <TableHead>{isRTL ? "صالح حتى" : "Valid Until"}</TableHead>
-                  <TableHead>{isRTL ? "الحالة" : "Status"}</TableHead>
-                  <TableHead>{isRTL ? "إجراءات" : "Actions"}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile Card View */}
+              <div className="md:hidden">
                 {offers.map((o) => (
-                  <TableRow key={o.id}>
-                    <TableCell className="font-medium">{isRTL ? o.title_ar : o.title_en}</TableCell>
-                    <TableCell>{o.discount_percentage ? `${o.discount_percentage}%` : "—"}</TableCell>
-                    <TableCell>{o.valid_until}</TableCell>
-                    <TableCell>
+                  <div key={o.id} className="border-b p-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-bold">{isRTL ? o.title_ar : o.title_en}</p>
+                        {o.discount_percentage && <p className="text-sm font-semibold text-green-600">{o.discount_percentage}% OFF</p>}
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {isRTL ? "صالح حتى:" : "Valid:"} {new Date(o.valid_until).toLocaleDateString()}
+                        </p>
+                      </div>
                       <Badge variant={o.active ? "default" : "secondary"}>
                         {o.active ? (isRTL ? "نشط" : "Active") : (isRTL ? "غير نشط" : "Inactive")}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(o)}><Pencil className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(o.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                    </div>
+                    <div className="mt-2 flex justify-end gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(o)}>
+                        <Pencil className="me-1 h-4 w-4" />
+                        {isRTL ? "تعديل" : "Edit"}
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleDelete(o.id)}>
+                        <Trash2 className="me-1 h-4 w-4" />
+                        {isRTL ? "حذف" : "Delete"}
+                      </Button>
+                    </div>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{isRTL ? "العنوان" : "Title"}</TableHead>
+                      <TableHead>{isRTL ? "الخصم" : "Discount"}</TableHead>
+                      <TableHead>{isRTL ? "صالح حتى" : "Valid Until"}</TableHead>
+                      <TableHead>{isRTL ? "الحالة" : "Status"}</TableHead>
+                      <TableHead>{isRTL ? "إجراءات" : "Actions"}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {offers.map((o) => (
+                      <TableRow key={o.id}>
+                        <TableCell className="font-medium">{isRTL ? o.title_ar : o.title_en}</TableCell>
+                        <TableCell>{o.discount_percentage ? `${o.discount_percentage}%` : "—"}</TableCell>
+                        <TableCell>{new Date(o.valid_until).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <Badge variant={o.active ? "default" : "secondary"}>
+                            {o.active ? (isRTL ? "نشط" : "Active") : (isRTL ? "غير نشط" : "Inactive")}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => handleEdit(o)}><Pencil className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDelete(o.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

@@ -49,7 +49,11 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <SEOHead title={isRTL ? "لوحة الإدارة" : "Admin Panel"} description="Super Admin Dashboard" />
+      <SEOHead
+        title={isRTL ? "لوحة الإدارة" : "Admin Panel"}
+        description="Super Admin Dashboard"
+        noIndex
+      />
 
       <aside
         className={`fixed inset-y-0 z-40 flex w-64 flex-col border-e border-border bg-card transition-transform md:static md:translate-x-0 ${

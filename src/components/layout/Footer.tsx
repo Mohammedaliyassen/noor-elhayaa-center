@@ -91,7 +91,15 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 border-t border-background/10 pt-6 text-center text-xs text-background/40">
-          © {new Date().getFullYear()} Noor Al-Hayat. {t("footer.rights")}.
+          © {new Date().getFullYear()},{" "}
+          <a
+            href="https://next-nfc-waves.vercel.app/waves-studio"
+            target="_blank"
+          >
+            {" "}
+            Waves-Studio.
+          </a>{" "}
+          {t("footer.rights")}.
         </div>
       </div>
     </footer>

@@ -33,6 +33,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Loader2, Plus, Pencil, ImagePlus } from "lucide-react";
 import { compressImage } from "@/lib/imageCompression";
+import { normalizeSlug } from "@/lib/slug";
 
 interface Article {
   id: string;
@@ -161,7 +162,9 @@ const AdminArticlesSection = () => {
   };
 
   const handleSave = async () => {
-    if (!user || !form.titleAr || !form.slug) {
+    const normalizedSlug = normalizeSlug(form.slug);
+
+    if (!user || !form.titleAr || !normalizedSlug) {
       toast({
         title: isRTL
           ? "يرجى ملء الحقول المطلوبة"
@@ -184,7 +187,7 @@ const AdminArticlesSection = () => {
         content_en: form.contentEn,
         excerpt_ar: form.excerptAr,
         excerpt_en: form.excerptEn,
-        slug: form.slug,
+        slug: normalizedSlug,
         category: form.category,
         cover_image: imageUrl,
       };
@@ -417,56 +420,106 @@ const AdminArticlesSection = () => {
               {isRTL ? "لا توجد مقالات" : "No articles"}
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{isRTL ? "العنوان" : "Title"}</TableHead>
-                  <TableHead>{isRTL ? "التصنيف" : "Category"}</TableHead>
-                  <TableHead>{isRTL ? "منشور" : "Published"}</TableHead>
-                  <TableHead>{isRTL ? "التاريخ" : "Date"}</TableHead>
-                  <TableHead>{isRTL ? "إجراءات" : "Actions"}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile Card View */}
+              <div className="md:hidden">
                 {articles.map((a) => (
-                  <TableRow key={a.id}>
-                    <TableCell className="font-medium">
-                      {isRTL ? a.title_ar : a.title_en}
-                    </TableCell>
-                    <TableCell>{a.category}</TableCell>
-                    <TableCell>
+                  <div key={a.id} className="border-b p-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-bold">
+                          {isRTL ? a.title_ar : a.title_en}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {a.category}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {new Date(a.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
                       <Switch
                         checked={a.published}
                         onCheckedChange={() =>
                           togglePublished(a.id, a.published)
                         }
                       />
-                    </TableCell>
-                    <TableCell>
-                      {new Date(a.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(a)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(a.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                    </div>
+                    <div className="mt-2 flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(a)}
+                      >
+                        <Pencil className="me-1 h-4 w-4" />
+                        {isRTL ? "تعديل" : "Edit"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(a.id)}
+                      >
+                        <Trash2 className="me-1 h-4 w-4" />
+                        {isRTL ? "حذف" : "Delete"}
+                      </Button>
+                    </div>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{isRTL ? "العنوان" : "Title"}</TableHead>
+                      <TableHead>{isRTL ? "التصنيف" : "Category"}</TableHead>
+                      <TableHead>{isRTL ? "منشور" : "Published"}</TableHead>
+                      <TableHead>{isRTL ? "التاريخ" : "Date"}</TableHead>
+                      <TableHead>{isRTL ? "إجراءات" : "Actions"}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {articles.map((a) => (
+                      <TableRow key={a.id}>
+                        <TableCell className="font-medium">
+                          {isRTL ? a.title_ar : a.title_en}
+                        </TableCell>
+                        <TableCell>{a.category}</TableCell>
+                        <TableCell>
+                          <Switch
+                            checked={a.published}
+                            onCheckedChange={() =>
+                              togglePublished(a.id, a.published)
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {new Date(a.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex-row-reverse gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(a)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(a.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

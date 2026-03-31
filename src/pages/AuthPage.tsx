@@ -20,7 +20,7 @@ type Mode = "login" | "register";
 type AppRole = "doctor" | "patient";
 
 const AuthPage = () => {
-  const { t, isRTL } = useLanguage();
+  const { isRTL } = useLanguage();
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -72,9 +72,9 @@ const AuthPage = () => {
     <div className="flex min-h-screen items-center justify-center bg-gradient-hero p-4">
       <SEOHead
         title={isRTL ? "تسجيل الدخول" : "Login"}
-        description={
-          isRTL ? "تسجيل الدخول إلى مركز نور الحياة" : "Login to Noor Al-Hayat"
-        }
+        description={isRTL ? "تسجيل الدخول إلى مركز نور الحياة" : "Login to Noor Al-Hayat"}
+        slug="auth"
+        noIndex
       />
       <Card className="w-full max-w-md shadow-medical">
         <CardHeader className="text-center">
@@ -120,18 +120,6 @@ const AuthPage = () => {
                       onClick={() => setRole("patient")}
                     >
                       {isRTL ? "مريض" : "Patient"}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={role === "doctor" ? "default" : "outline"}
-                      className={
-                        role === "doctor"
-                          ? "flex-1 bg-gradient-medical"
-                          : "flex-1"
-                      }
-                      onClick={() => setRole("doctor")}
-                    >
-                      {isRTL ? "طبيب" : "Doctor"}
                     </Button>
                   </div>
                 </div>

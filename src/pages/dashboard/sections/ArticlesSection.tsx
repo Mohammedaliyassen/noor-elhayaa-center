@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash2, Pencil, Loader2, ImagePlus } from "lucide-react";
 import { compressImage } from "@/lib/imageCompression";
+import { normalizeSlug } from "@/lib/slug";
 
 interface Article {
   id: string;
@@ -100,7 +101,7 @@ const ArticlesSection = () => {
     setSaving(true);
 
     try {
-      const slug = form.slug || form.title_en.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") || `article-${Date.now()}`;
+      const slug = normalizeSlug(form.slug || form.title_en || form.title_ar) || `article-${Date.now()}`;
       const coverImage = await uploadImage();
       if (isBlobUrl(coverImage)) {
         throw new Error("Local preview URLs cannot be saved");
@@ -202,35 +203,67 @@ const ArticlesSection = () => {
           ) : articles.length === 0 ? (
             <p className="p-8 text-center text-muted-foreground">{isRTL ? "لا توجد مقالات" : "No articles yet"}</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{isRTL ? "العنوان" : "Title"}</TableHead>
-                  <TableHead>{isRTL ? "التصنيف" : "Category"}</TableHead>
-                  <TableHead>{isRTL ? "الحالة" : "Status"}</TableHead>
-                  <TableHead>{isRTL ? "إجراءات" : "Actions"}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile Card View */}
+              <div className="md:hidden">
                 {articles.map((a) => (
-                  <TableRow key={a.id}>
-                    <TableCell className="font-medium">{isRTL ? a.title_ar : a.title_en}</TableCell>
-                    <TableCell>{a.category}</TableCell>
-                    <TableCell>
+                  <div key={a.id} className="border-b p-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-bold">{isRTL ? a.title_ar : a.title_en}</p>
+                        <p className="text-sm text-muted-foreground">{a.category}</p>
+                      </div>
                       <Badge variant={a.published ? "default" : "secondary"}>
                         {a.published ? (isRTL ? "منشور" : "Published") : (isRTL ? "مسودة" : "Draft")}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(a)}><Pencil className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(a.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                    </div>
+                    <div className="mt-2 flex justify-end gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(a)}>
+                        <Pencil className="me-1 h-4 w-4" />
+                        {isRTL ? "تعديل" : "Edit"}
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleDelete(a.id)}>
+                        <Trash2 className="me-1 h-4 w-4" />
+                        {isRTL ? "حذف" : "Delete"}
+                      </Button>
+                    </div>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+              
+              {/* Desktop Table View */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{isRTL ? "العنوان" : "Title"}</TableHead>
+                      <TableHead>{isRTL ? "التصنيف" : "Category"}</TableHead>
+                      <TableHead>{isRTL ? "الحالة" : "Status"}</TableHead>
+                      <TableHead>{isRTL ? "إجراءات" : "Actions"}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {articles.map((a) => (
+                      <TableRow key={a.id}>
+                        <TableCell className="font-medium">{isRTL ? a.title_ar : a.title_en}</TableCell>
+                        <TableCell>{a.category}</TableCell>
+                        <TableCell>
+                          <Badge variant={a.published ? "default" : "secondary"}>
+                            {a.published ? (isRTL ? "منشور" : "Published") : (isRTL ? "مسودة" : "Draft")}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => handleEdit(a)}><Pencil className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDelete(a.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

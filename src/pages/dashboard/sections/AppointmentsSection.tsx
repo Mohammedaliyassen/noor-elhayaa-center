@@ -80,43 +80,81 @@ const AppointmentsSection = ({ isAdmin }: Props) => {
           ) : appointments.length === 0 ? (
             <p className="p-8 text-center text-muted-foreground">{isRTL ? "لا توجد مواعيد" : "No appointments"}</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{isRTL ? "الاسم" : "Name"}</TableHead>
-                  <TableHead>{isRTL ? "الهاتف" : "Phone"}</TableHead>
-                  <TableHead>{isRTL ? "الخدمة" : "Service"}</TableHead>
-                  <TableHead>{isRTL ? "التاريخ" : "Date"}</TableHead>
-                  <TableHead>{isRTL ? "الحالة" : "Status"}</TableHead>
-                  <TableHead>{isRTL ? "إجراءات" : "Actions"}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile Card View */}
+              <div className="md:hidden">
                 {appointments.map((a) => (
-                  <TableRow key={a.id}>
-                    <TableCell className="font-medium">{a.patient_name}</TableCell>
-                    <TableCell>{a.phone}</TableCell>
-                    <TableCell>{a.service_type}</TableCell>
-                    <TableCell>{a.preferred_date}</TableCell>
-                    <TableCell>
-                      <Badge variant={statusColors[a.status] ?? "outline"}>{statusLabel(a.status)}</Badge>
-                    </TableCell>
-                    <TableCell>
+                  <Card key={a.id} className="mb-4">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between">
+                        <div className="space-y-1">
+                          <p className="font-bold">{a.patient_name}</p>
+                          <p className="text-sm text-muted-foreground">{a.phone}</p>
+                        </div>
+                        <Badge variant={statusColors[a.status] ?? "outline"}>{statusLabel(a.status)}</Badge>
+                      </div>
+                      <div className="mt-4 space-y-2 text-sm">
+                        <p><span className="font-semibold">{isRTL ? "الخدمة:" : "Service:"}</span> {a.service_type}</p>
+                        <p><span className="font-semibold">{isRTL ? "التاريخ:" : "Date:"}</span> {a.preferred_date}</p>
+                      </div>
                       {a.status === "pending" && (
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => updateStatus(a.id, "confirmed")}>
-                            <Check className="h-4 w-4 text-secondary" />
+                        <div className="mt-4 flex justify-end gap-2">
+                          <Button variant="outline" size="sm" onClick={() => updateStatus(a.id, "confirmed")}>
+                            <Check className="me-1 h-4 w-4" />
+                            {isRTL ? "تأكيد" : "Confirm"}
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => updateStatus(a.id, "cancelled")}>
-                            <X className="h-4 w-4 text-destructive" />
+                          <Button variant="outline" size="sm" onClick={() => updateStatus(a.id, "cancelled")}>
+                            <X className="me-1 h-4 w-4" />
+                            {isRTL ? "إلغاء" : "Cancel"}
                           </Button>
                         </div>
                       )}
-                    </TableCell>
-                  </TableRow>
+                    </CardContent>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{isRTL ? "الاسم" : "Name"}</TableHead>
+                      <TableHead>{isRTL ? "الهاتف" : "Phone"}</TableHead>
+                      <TableHead>{isRTL ? "الخدمة" : "Service"}</TableHead>
+                      <TableHead>{isRTL ? "التاريخ" : "Date"}</TableHead>
+                      <TableHead>{isRTL ? "الحالة" : "Status"}</TableHead>
+                      <TableHead>{isRTL ? "إجراءات" : "Actions"}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {appointments.map((a) => (
+                      <TableRow key={a.id}>
+                        <TableCell className="font-medium">{a.patient_name}</TableCell>
+                        <TableCell>{a.phone}</TableCell>
+                        <TableCell>{a.service_type}</TableCell>
+                        <TableCell>{a.preferred_date}</TableCell>
+                        <TableCell>
+                          <Badge variant={statusColors[a.status] ?? "outline"}>{statusLabel(a.status)}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          {a.status === "pending" && (
+                            <div className="flex gap-1">
+                              <Button variant="ghost" size="icon" onClick={() => updateStatus(a.id, "confirmed")}>
+                                <Check className="h-4 w-4 text-green-500" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => updateStatus(a.id, "cancelled")}>
+                                <X className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

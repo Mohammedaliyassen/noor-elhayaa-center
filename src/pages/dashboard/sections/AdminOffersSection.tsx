@@ -3,16 +3,30 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Loader2, Plus, Pencil, ImagePlus } from "lucide-react";
 import { compressImage } from "@/lib/imageCompression";
+import { normalizeSlug } from "@/lib/slug";
 
 interface Offer {
   id: string;
@@ -31,8 +45,14 @@ interface Offer {
 }
 
 const defaultForm = {
-  titleAr: "", titleEn: "", descAr: "", descEn: "",
-  discount: "", validUntil: "", couponCode: "", slug: "",
+  titleAr: "",
+  titleEn: "",
+  descAr: "",
+  descEn: "",
+  discount: "",
+  validUntil: "",
+  couponCode: "",
+  slug: "",
 };
 
 const isBlobUrl = (value: string | null | undefined): value is string =>
@@ -61,7 +81,9 @@ const AdminOffersSection = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchOffers(); }, []);
+  useEffect(() => {
+    fetchOffers();
+  }, []);
 
   const toggleActive = async (id: string, current: boolean) => {
     await supabase.from("offers").update({ active: !current }).eq("id", id);
@@ -84,8 +106,10 @@ const AdminOffersSection = () => {
 
   const handleEdit = (o: Offer) => {
     setForm({
-      titleAr: o.title_ar, titleEn: o.title_en,
-      descAr: o.description_ar, descEn: o.description_en,
+      titleAr: o.title_ar,
+      titleEn: o.title_en,
+      descAr: o.description_ar,
+      descEn: o.description_en,
       discount: o.discount_percentage?.toString() ?? "",
       validUntil: o.valid_until,
       couponCode: o.coupon_code ?? "",
@@ -116,7 +140,9 @@ const AdminOffersSection = () => {
     }
     const ext = imageFile.name.split(".").pop();
     const path = `offers/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("media").upload(path, imageFile);
+    const { error } = await supabase.storage
+      .from("media")
+      .upload(path, imageFile);
     if (error) throw error;
     const { data } = supabase.storage.from("media").getPublicUrl(path);
     if (!data.publicUrl || isBlobUrl(data.publicUrl)) {
@@ -127,7 +153,12 @@ const AdminOffersSection = () => {
 
   const handleSave = async () => {
     if (!user || !form.titleAr || !form.validUntil) {
-      toast({ title: isRTL ? "يرجى ملء الحقول المطلوبة" : "Please fill required fields", variant: "destructive" });
+      toast({
+        title: isRTL
+          ? "يرجى ملء الحقول المطلوبة"
+          : "Please fill required fields",
+        variant: "destructive",
+      });
       return;
     }
     setSaving(true);
@@ -146,13 +177,20 @@ const AdminOffersSection = () => {
         valid_until: form.validUntil,
         image: imageUrl,
         coupon_code: form.couponCode || null,
-        slug: form.slug || null,
+        slug: normalizeSlug(form.slug) || null,
       };
 
       if (editId) {
-        const { error } = await supabase.from("offers").update(payload).eq("id", editId);
+        const { error } = await supabase
+          .from("offers")
+          .update(payload)
+          .eq("id", editId);
         if (error) {
-          toast({ title: isRTL ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+          toast({
+            title: isRTL ? "خطأ" : "Error",
+            description: error.message,
+            variant: "destructive",
+          });
         } else {
           toast({ title: isRTL ? "تم التحديث" : "Updated" });
         }
@@ -161,7 +199,11 @@ const AdminOffersSection = () => {
         payload.active = true;
         const { error } = await supabase.from("offers").insert(payload);
         if (error) {
-          toast({ title: isRTL ? "خطأ" : "Error", description: error.message, variant: "destructive" });
+          toast({
+            title: isRTL ? "خطأ" : "Error",
+            description: error.message,
+            variant: "destructive",
+          });
         } else {
           toast({ title: isRTL ? "تمت الإضافة" : "Offer added" });
         }
@@ -185,52 +227,118 @@ const AdminOffersSection = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">{isRTL ? "إدارة العروض" : "Manage Offers"}</h2>
-        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
+        <h2 className="text-2xl font-bold">
+          {isRTL ? "إدارة العروض" : "Manage Offers"}
+        </h2>
+        <Dialog
+          open={dialogOpen}
+          onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) resetForm();
+          }}
+        >
           <DialogTrigger asChild>
             <Button className="bg-gradient-medical">
-              <Plus className="me-2 h-4 w-4" />
               {isRTL ? "إضافة عرض" : "Add Offer"}
+              <Plus className="me-2 h-4 w-4" />
             </Button>
           </DialogTrigger>
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>{editId ? (isRTL ? "تعديل عرض" : "Edit Offer") : (isRTL ? "عرض جديد" : "New Offer")}</DialogTitle>
+              <DialogTitle>
+                {editId
+                  ? isRTL
+                    ? "تعديل عرض"
+                    : "Edit Offer"
+                  : isRTL
+                    ? "عرض جديد"
+                    : "New Offer"}
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-3">
               <div className="space-y-1">
-                <Label>{isRTL ? "العنوان بالعربية *" : "Title (Arabic) *"}</Label>
-                <Input value={form.titleAr} onChange={(e) => setForm({ ...form, titleAr: e.target.value })} />
+                <Label>
+                  {isRTL ? "العنوان بالعربية *" : "Title (Arabic) *"}
+                </Label>
+                <Input
+                  value={form.titleAr}
+                  onChange={(e) =>
+                    setForm({ ...form, titleAr: e.target.value })
+                  }
+                />
               </div>
               <div className="space-y-1">
-                <Label>{isRTL ? "العنوان بالإنجليزية" : "Title (English)"}</Label>
-                <Input value={form.titleEn} onChange={(e) => setForm({ ...form, titleEn: e.target.value })} />
+                <Label>
+                  {isRTL ? "العنوان بالإنجليزية" : "Title (English)"}
+                </Label>
+                <Input
+                  value={form.titleEn}
+                  onChange={(e) =>
+                    setForm({ ...form, titleEn: e.target.value })
+                  }
+                />
               </div>
               <div className="space-y-1">
                 <Label>{isRTL ? "الرابط (slug)" : "Slug"}</Label>
-                <Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="offer-name" />
+                <Input
+                  value={form.slug}
+                  onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                  placeholder="offer-name"
+                />
               </div>
               <div className="space-y-1">
-                <Label>{isRTL ? "الوصف بالعربية" : "Description (Arabic)"}</Label>
-                <Textarea value={form.descAr} onChange={(e) => setForm({ ...form, descAr: e.target.value })} rows={3} />
+                <Label>
+                  {isRTL ? "الوصف بالعربية" : "Description (Arabic)"}
+                </Label>
+                <Textarea
+                  value={form.descAr}
+                  onChange={(e) => setForm({ ...form, descAr: e.target.value })}
+                  rows={3}
+                />
               </div>
               <div className="space-y-1">
-                <Label>{isRTL ? "الوصف بالإنجليزية" : "Description (English)"}</Label>
-                <Textarea value={form.descEn} onChange={(e) => setForm({ ...form, descEn: e.target.value })} rows={3} />
+                <Label>
+                  {isRTL ? "الوصف بالإنجليزية" : "Description (English)"}
+                </Label>
+                <Textarea
+                  value={form.descEn}
+                  onChange={(e) => setForm({ ...form, descEn: e.target.value })}
+                  rows={3}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label>{isRTL ? "نسبة الخصم %" : "Discount %"}</Label>
-                  <Input type="number" min="0" max="100" value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} />
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={form.discount}
+                    onChange={(e) =>
+                      setForm({ ...form, discount: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label>{isRTL ? "صالح حتى *" : "Valid Until *"}</Label>
-                  <Input type="date" value={form.validUntil} onChange={(e) => setForm({ ...form, validUntil: e.target.value })} />
+                  <Input
+                    type="date"
+                    value={form.validUntil}
+                    onChange={(e) =>
+                      setForm({ ...form, validUntil: e.target.value })
+                    }
+                  />
                 </div>
               </div>
               <div className="space-y-1">
                 <Label>{isRTL ? "كود الكوبون" : "Coupon Code"}</Label>
-                <Input value={form.couponCode} onChange={(e) => setForm({ ...form, couponCode: e.target.value })} placeholder="OFFER2024" />
+                <Input
+                  value={form.couponCode}
+                  onChange={(e) =>
+                    setForm({ ...form, couponCode: e.target.value })
+                  }
+                  placeholder="OFFER2024"
+                />
               </div>
               {/* Image upload */}
               <div className="space-y-1">
@@ -239,16 +347,35 @@ const AdminOffersSection = () => {
                   <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-muted-foreground/30 px-4 py-2 text-sm text-muted-foreground hover:border-primary hover:text-primary">
                     <ImagePlus className="h-4 w-4" />
                     {isRTL ? "اختر صورة" : "Choose image"}
-                    <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageChange}
+                    />
                   </label>
                   {imagePreview && (
-                    <img src={imagePreview} alt="" className="h-12 w-12 rounded object-cover" />
+                    <img
+                      src={imagePreview}
+                      alt=""
+                      className="h-12 w-12 rounded object-cover"
+                    />
                   )}
                 </div>
               </div>
-              <Button onClick={handleSave} disabled={saving} className="w-full bg-gradient-medical">
+              <Button
+                onClick={handleSave}
+                disabled={saving}
+                className="w-full bg-gradient-medical"
+              >
                 {saving && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
-                {editId ? (isRTL ? "تحديث" : "Update") : (isRTL ? "إضافة" : "Add")}
+                {editId
+                  ? isRTL
+                    ? "تحديث"
+                    : "Update"
+                  : isRTL
+                    ? "إضافة"
+                    : "Add"}
               </Button>
             </div>
           </DialogContent>
@@ -258,45 +385,124 @@ const AdminOffersSection = () => {
       <Card>
         <CardContent className="p-0">
           {loading ? (
-            <div className="flex justify-center p-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+            <div className="flex justify-center p-8">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
           ) : offers.length === 0 ? (
-            <p className="p-8 text-center text-muted-foreground">{isRTL ? "لا توجد عروض" : "No offers"}</p>
+            <p className="p-8 text-center text-muted-foreground">
+              {isRTL ? "لا توجد عروض" : "No offers"}
+            </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{isRTL ? "العنوان" : "Title"}</TableHead>
-                  <TableHead>{isRTL ? "الخصم" : "Discount"}</TableHead>
-                  <TableHead>{isRTL ? "الكوبون" : "Coupon"}</TableHead>
-                  <TableHead>{isRTL ? "صالح حتى" : "Valid Until"}</TableHead>
-                  <TableHead>{isRTL ? "نشط" : "Active"}</TableHead>
-                  <TableHead>{isRTL ? "إجراءات" : "Actions"}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile Card View */}
+              <div className="md:hidden">
                 {offers.map((o) => (
-                  <TableRow key={o.id}>
-                    <TableCell className="font-medium">{isRTL ? o.title_ar : o.title_en}</TableCell>
-                    <TableCell>{o.discount_percentage ? `${o.discount_percentage}%` : "—"}</TableCell>
-                    <TableCell>{o.coupon_code || "—"}</TableCell>
-                    <TableCell>{o.valid_until}</TableCell>
-                    <TableCell>
-                      <Switch checked={o.active} onCheckedChange={() => toggleActive(o.id, o.active)} />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(o)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(o.id)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                  <div key={o.id} className="border-b p-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-bold">
+                          {isRTL ? o.title_ar : o.title_en}
+                        </p>
+                        {o.discount_percentage && (
+                          <p className="text-sm font-semibold text-green-600">
+                            {o.discount_percentage}% OFF
+                          </p>
+                        )}
+                        <p className="text-sm text-muted-foreground">
+                          {o.coupon_code || ""}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {isRTL ? "صالح حتى:" : "Valid:"}{" "}
+                          {new Date(o.valid_until).toLocaleDateString()}
+                        </p>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                      <Switch
+                        checked={o.active}
+                        onCheckedChange={() => toggleActive(o.id, o.active)}
+                      />
+                    </div>
+                    <div className="mt-2 flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(o)}
+                      >
+                        <Pencil className="me-1 h-4 w-4" />
+                        {isRTL ? "تعديل" : "Edit"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(o.id)}
+                      >
+                        <Trash2 className="me-1 h-4 w-4" />
+                        {isRTL ? "حذف" : "Delete"}
+                      </Button>
+                    </div>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{isRTL ? "العنوان" : "Title"}</TableHead>
+                      <TableHead>{isRTL ? "الخصم" : "Discount"}</TableHead>
+                      <TableHead>{isRTL ? "الكوبون" : "Coupon"}</TableHead>
+                      <TableHead>
+                        {isRTL ? "صالح حتى" : "Valid Until"}
+                      </TableHead>
+                      <TableHead>{isRTL ? "نشط" : "Active"}</TableHead>
+                      <TableHead>{isRTL ? "إجراءات" : "Actions"}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {offers.map((o) => (
+                      <TableRow key={o.id}>
+                        <TableCell className="font-medium">
+                          {isRTL ? o.title_ar : o.title_en}
+                        </TableCell>
+                        <TableCell>
+                          {o.discount_percentage
+                            ? `${o.discount_percentage}%`
+                            : "—"}
+                        </TableCell>
+                        <TableCell>{o.coupon_code || "—"}</TableCell>
+                        <TableCell>
+                          {new Date(o.valid_until).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Switch
+                            checked={o.active}
+                            onCheckedChange={() => toggleActive(o.id, o.active)}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex-row-reverse gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(o)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(o.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

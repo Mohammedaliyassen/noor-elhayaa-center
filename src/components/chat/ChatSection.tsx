@@ -296,7 +296,7 @@ const ChatSection = () => {
   const renderChat = () => (
     <Card className="flex h-[calc(100vh-12rem)] flex-col">
       <CardHeader className="flex-row items-center gap-3 border-b pb-3">
-        <Button variant="ghost" size="icon" onClick={() => setSelectedContact(null)} className="shrink-0">
+        <Button variant="ghost" size="icon" onClick={() => setSelectedContact(null)} className="shrink-0 md:hidden">
           <ArrowLeft className={cn("h-4 w-4", isRTL && "rotate-180")} />
         </Button>
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
@@ -385,7 +385,23 @@ const ChatSection = () => {
     </Card>
   );
 
-  return selectedContact ? renderChat() : renderContactList();
+  return (
+    <div className="grid h-full md:grid-cols-[300px_1fr]">
+      <div className={cn("h-full", selectedContact && "hidden md:block")}>
+        {renderContactList()}
+      </div>
+      <div className={cn("h-full", !selectedContact && "hidden md:block")}>
+        {selectedContact ? renderChat() : (
+          <Card className="hidden h-[calc(100vh-12rem)] items-center justify-center md:flex">
+            <div className="text-center">
+              <MessageCircle className="mx-auto h-12 w-12 text-muted-foreground" />
+              <p className="mt-4 text-muted-foreground">{isRTL ? "اختر محادثة لبدء الدردشة" : "Select a conversation to start chatting"}</p>
+            </div>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default ChatSection;

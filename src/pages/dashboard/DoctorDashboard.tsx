@@ -95,6 +95,7 @@ const DoctorDashboard = () => {
       <SEOHead
         title={isRTL ? "لوحة التحكم" : "Dashboard"}
         description="Doctor Dashboard"
+        noIndex
       />
 
       {/* Sidebar */}

@@ -8,6 +8,7 @@ import { useArticleBySlug, useArticles } from "@/hooks/useArticles";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Calendar } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { canonicalFromSlug, toAbsoluteUrl } from "@/lib/seo";
 
 const ArticlePage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -17,7 +18,8 @@ const ArticlePage = () => {
   const { data: article, isLoading } = useArticleBySlug(slug || "");
   const { data: allArticles } = useArticles();
 
-  const related = allArticles?.filter((a) => a.id !== article?.id && a.category === article?.category).slice(0, 2) ?? [];
+  const related =
+    allArticles?.filter((a) => a.id !== article?.id && a.category === article?.category).slice(0, 2) ?? [];
 
   if (isLoading) {
     return (
@@ -53,10 +55,41 @@ const ArticlePage = () => {
   const title = language === "ar" ? article.title_ar : article.title_en;
   const content = language === "ar" ? article.content_ar : article.content_en;
   const excerpt = language === "ar" ? article.excerpt_ar : article.excerpt_en;
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: title,
+    description: excerpt,
+    image: article.cover_image ? [toAbsoluteUrl(article.cover_image)] : undefined,
+    datePublished: article.created_at,
+    dateModified: article.updated_at,
+    mainEntityOfPage: canonicalFromSlug(`articles/${article.slug}`),
+    inLanguage: language === "ar" ? "ar-EG" : "en-US",
+    author: {
+      "@type": "Organization",
+      name: "مركز نور الحياة - Noor Al-Hayat",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "مركز نور الحياة - Noor Al-Hayat",
+      logo: {
+        "@type": "ImageObject",
+        url: toAbsoluteUrl("/imgs/logo.jpg"),
+      },
+    },
+  };
 
   return (
     <MainLayout>
-      <SEOHead title={title} description={excerpt} slug={`articles/${article.slug}`} type="article" />
+      <SEOHead
+        title={title}
+        description={excerpt}
+        slug={`articles/${article.slug}`}
+        image={article.cover_image ?? "/og.png"}
+        type="article"
+        keywords={article.tags ?? [article.category, "article", "medical article"]}
+        structuredData={articleSchema}
+      />
 
       <article className="py-12">
         <div className="container max-w-3xl">
@@ -86,7 +119,6 @@ const ArticlePage = () => {
             </div>
           </motion.div>
 
-          {/* Related */}
           {related.length > 0 && (
             <div className="mt-12 border-t border-border pt-8">
               <h2 className="mb-6 text-xl font-bold">{t("articles.relatedArticles")}</h2>

@@ -32,10 +32,13 @@ const ArticlesPage = () => {
     <MainLayout>
       <SEOHead
         title={t("articles.title")}
-        description={isRTL
-          ? "اقرأ أحدث المقالات الطبية في العلاج الطبيعي والتغذية العلاجية"
-          : "Read the latest medical articles on physiotherapy and clinical nutrition"}
+        description={
+          isRTL
+            ? "اقرأ أحدث المقالات الطبية عن العلاج الطبيعي والتغذية العلاجية ونصائح الصحة والتأهيل."
+            : "Read the latest medical articles on physiotherapy and clinical nutrition."
+        }
         slug="articles"
+        keywords={["مقالات طبية", "العلاج الطبيعي", "التغذية العلاجية", "medical articles", "physiotherapy"]}
       />
 
       <section className="bg-gradient-hero py-16">
@@ -47,7 +50,6 @@ const ArticlesPage = () => {
 
       <section className="py-12">
         <div className="container">
-          {/* Search & Filter */}
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -79,7 +81,6 @@ const ArticlesPage = () => {
             </div>
           </div>
 
-          {/* Articles Grid */}
           {isLoading ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3, 4, 5, 6].map((i) => (

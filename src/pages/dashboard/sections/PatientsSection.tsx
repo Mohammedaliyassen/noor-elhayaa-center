@@ -278,21 +278,16 @@ const PatientsSection = () => {
           ) : patients.length === 0 ? (
             <p className="p-8 text-center text-muted-foreground">{isRTL ? "لا يوجد مرضى بعد" : "No patients yet"}</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{isRTL ? "الاسم" : "Name"}</TableHead>
-                  <TableHead>{isRTL ? "الهاتف" : "Phone"}</TableHead>
-                  <TableHead>{isRTL ? "الحالة" : "Status"}</TableHead>
-                  <TableHead>{isRTL ? "إجراءات" : "Actions"}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile Card View */}
+              <div className="md:hidden">
                 {patients.map((patient) => (
-                  <TableRow key={patient.id}>
-                    <TableCell className="font-medium">{patient.name}</TableCell>
-                    <TableCell>{patient.phone}</TableCell>
-                    <TableCell>
+                  <div key={patient.id} className="border-b p-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-bold">{patient.name}</p>
+                        <p className="text-sm text-muted-foreground">{patient.phone}</p>
+                      </div>
                       {patient.user_id ? (
                         <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400">
                           <UserCheck className="me-1 h-3 w-3" />
@@ -303,17 +298,61 @@ const PatientsSection = () => {
                           {isRTL ? "يدوي" : "Manual"}
                         </Badge>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(patient)}><Pencil className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(patient.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                    </div>
+                    <div className="mt-2 flex justify-end gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(patient)}>
+                        <Pencil className="me-1 h-4 w-4" />
+                        {isRTL ? "تعديل" : "Edit"}
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleDelete(patient.id)}>
+                        <Trash2 className="me-1 h-4 w-4" />
+                        {isRTL ? "حذف" : "Delete"}
+                      </Button>
+                    </div>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{isRTL ? "الاسم" : "Name"}</TableHead>
+                      <TableHead>{isRTL ? "الهاتف" : "Phone"}</TableHead>
+                      <TableHead>{isRTL ? "الحالة" : "Status"}</TableHead>
+                      <TableHead>{isRTL ? "إجراءات" : "Actions"}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {patients.map((patient) => (
+                      <TableRow key={patient.id}>
+                        <TableCell className="font-medium">{patient.name}</TableCell>
+                        <TableCell>{patient.phone}</TableCell>
+                        <TableCell>
+                          {patient.user_id ? (
+                            <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400">
+                              <UserCheck className="me-1 h-3 w-3" />
+                              {isRTL ? "مربوط" : "Linked"}
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-muted-foreground">
+                              {isRTL ? "يدوي" : "Manual"}
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => handleEdit(patient)}><Pencil className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDelete(patient.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

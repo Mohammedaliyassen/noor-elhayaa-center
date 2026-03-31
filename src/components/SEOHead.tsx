@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { canonicalFromSlug, toAbsoluteUrl } from "@/lib/seo";
 
 interface SEOHeadProps {
   title: string;
@@ -7,43 +8,66 @@ interface SEOHeadProps {
   slug?: string;
   image?: string;
   type?: string;
+  keywords?: string | string[];
+  noIndex?: boolean;
+  structuredData?: Record<string, unknown> | Array<Record<string, unknown>>;
 }
 
 const SEOHead = ({
   title,
   description,
-  slug = "",
+  slug,
   image,
   type = "website",
+  keywords,
+  noIndex = false,
+  structuredData,
 }: SEOHeadProps) => {
   const { language } = useLanguage();
   const fullTitle = `${title} | مركز نور الحياة - Noor Al-Hayat`;
+  const canonicalUrl = typeof slug === "string" ? canonicalFromSlug(slug) : undefined;
+  const imageUrl = toAbsoluteUrl(image) ?? canonicalFromSlug("og.png");
+  const keywordsContent = Array.isArray(keywords) ? keywords.join(", ") : keywords;
 
   return (
     <Helmet>
       <html lang={language} dir={language === "ar" ? "rtl" : "ltr"} />
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
+      <meta
+        name="robots"
+        content={
+          noIndex
+            ? "noindex, nofollow"
+            : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        }
+      />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:type" content={type} />
-      {image && <meta property="og:image" content={image} />}
-      {slug && (
-        // TODO: ده لازم يتغير بالدومين الاصلي لما يبقي موجود ان شاء الله
-        <link rel="canonical" href={`https://noor-alhayat.com/${slug}`} />
-      )}
+      <meta property="og:image" content={imageUrl} />
+      {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+      <meta property="og:site_name" content="Noor Al-Hayat" />
+      <meta property="og:locale" content={language === "ar" ? "ar_EG" : "en_US"} />
+      {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
       <meta
         name="keywords"
-        content="مركز نور الحياة, علاج طبيعي, تغذية علاجية, تخسيس, تأهيل حركي, دكتور علاج طبيعي, مركز علاج طبيعي"
+        content={
+          keywordsContent ||
+          "مركز نور الحياة, Noor Al-Hayat, علاج طبيعي, تغذية علاجية, Physiotherapy, Clinical Nutrition"
+        }
       />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
-      {image && <meta name="twitter:image" content={image} />}
+      <meta name="twitter:image" content={imageUrl} />
       <meta
         name="author"
-        content="مركز نور الحياة - د. أحمد يحي شحاتة- د. يارا محمد علي"
+        content="مركز نور الحياة - د. أحمد يحيى شحاتة - د. يارا محمد علي"
       />
+      {structuredData && (
+        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+      )}
     </Helmet>
   );
 };

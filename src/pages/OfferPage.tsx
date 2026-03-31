@@ -31,7 +31,6 @@ const OfferPage = () => {
     enabled: !!slug,
   });
 
-  // Fetch other active offers for "related"
   const { data: otherOffers } = useQuery({
     queryKey: ["other-offers", slug],
     queryFn: async () => {
@@ -82,7 +81,13 @@ const OfferPage = () => {
 
   return (
     <MainLayout>
-      <SEOHead title={title} description={description} slug={`offers/${offer.slug}`} />
+      <SEOHead
+        title={title}
+        description={description}
+        slug={`offers/${offer.slug}`}
+        image={offer.image ?? "/og.png"}
+        keywords={["عروض", "offer", "physiotherapy offer", "nutrition offer"]}
+      />
 
       <article className="py-12">
         <div className="container max-w-3xl">
@@ -129,7 +134,6 @@ const OfferPage = () => {
               {description}
             </div>
 
-            {/* CTA Button */}
             <div className="mt-10">
               <Button asChild size="lg" className="w-full bg-gradient-medical text-lg hover:opacity-90 sm:w-auto">
                 <Link to={bookingUrl}>
@@ -140,7 +144,6 @@ const OfferPage = () => {
             </div>
           </motion.div>
 
-          {/* Related offers */}
           {otherOffers && otherOffers.length > 0 && (
             <div className="mt-12 border-t border-border pt-8">
               <h2 className="mb-6 text-xl font-bold">{isRTL ? "عروض أخرى" : "Other Offers"}</h2>

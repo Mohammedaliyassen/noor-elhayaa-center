@@ -1,7 +1,8 @@
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { User } from "lucide-react";
+import { ExternalLink, User } from "lucide-react";
 
 const AboutSection = () => {
   const { t, language } = useLanguage();
@@ -11,6 +12,7 @@ const AboutSection = () => {
       name: t("about.dr.name"),
       title: t("about.dr.title"),
       desc: t("about.dr.desc"),
+      profileUrl: "https://next-nfc-waves.vercel.app/dr-ahmed-yahiaa",
     },
     {
       name: t("about.partner.name"),
@@ -35,20 +37,33 @@ const AboutSection = () => {
         <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
           {team.map((member, i) => (
             <motion.div
-              key={i}
+              key={member.name}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.15 }}
             >
-              <Card className="h-full border-0 shadow-medical">
-                <CardContent className="p-6 text-center">
+              <Card className="h-full border-0 shadow-medical transition-transform hover:-translate-y-1">
+                <CardContent className="flex h-full flex-col p-6 text-center">
                   <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-accent">
                     <User className="h-10 w-10 text-accent-foreground" />
                   </div>
                   <h3 className="mb-1 text-xl font-bold">{member.name}</h3>
                   <p className="mb-3 text-sm font-medium text-primary">{member.title}</p>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{member.desc}</p>
+                  <p className="mb-5 text-sm leading-relaxed text-muted-foreground">{member.desc}</p>
+
+                  {member.profileUrl && (
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="mt-auto rounded-full border-primary/20 bg-primary/5 text-primary hover:bg-primary hover:text-primary-foreground"
+                    >
+                      <a href={member.profileUrl} target="_blank" rel="noreferrer">
+                        {language === "ar" ? "الملف التعريفي لد. أحمد" : "Dr. Ahmed Profile"}
+                        <ExternalLink className="ms-2 h-4 w-4" />
+                      </a>
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
